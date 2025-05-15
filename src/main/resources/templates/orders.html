@@ -1,0 +1,199 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+<head>
+    <title>My Orders</title>
+    <meta charset="UTF-8">
+    <!-- Bootstrap CSS -->
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+    <style>
+        /* Custom CSS */
+        body {
+            background-color: #f8f9fa;
+            padding-top: 2rem;
+            padding-bottom: 3rem;
+        }
+        .orders-container {
+            max-width: 1200px;
+            margin: 0 auto;
+            background: white;
+            border-radius: 10px;
+            box-shadow: 0 0 15px rgba(0,0,0,0.05);
+            padding: 2rem;
+        }
+        .page-header {
+            border-bottom: 1px solid #eee;
+            padding-bottom: 1rem;
+            margin-bottom: 2rem;
+        }
+        .order-card {
+            border: 1px solid #e9ecef;
+            border-radius: 8px;
+            margin-bottom: 2rem;
+            overflow: hidden;
+            transition: all 0.3s ease;
+        }
+        .order-card:hover {
+            box-shadow: 0 5px 15px rgba(0,0,0,0.1);
+            transform: translateY(-2px);
+        }
+        .order-header {
+            background-color: #f8f9fa;
+            padding: 1rem 1.5rem;
+            border-bottom: 1px solid #e9ecef;
+        }
+        .order-body {
+            padding: 1.5rem;
+        }
+        .order-status {
+            display: inline-block;
+            padding: 0.35rem 0.75rem;
+            border-radius: 50px;
+            font-size: 0.85rem;
+            font-weight: 500;
+        }
+        .status-pending {
+            background-color: #fff3cd;
+            color: #856404;
+        }
+        .status-completed {
+            background-color: #d4edda;
+            color: #155724;
+        }
+        .status-cancelled {
+            background-color: #f8d7da;
+            color: #721c24;
+        }
+        .empty-orders {
+            text-align: center;
+            padding: 3rem;
+            color: #6c757d;
+        }
+        .empty-orders-icon {
+            font-size: 5rem;
+            color: #dee2e6;
+            margin-bottom: 1rem;
+        }
+        .product-img {
+            width: 60px;
+            height: 60px;
+            object-fit: cover;
+            border-radius: 4px;
+        }
+        @media (max-width: 768px) {
+            .table-responsive {
+                border: 0;
+            }
+            .table thead {
+                display: none;
+            }
+            .table tr {
+                display: block;
+                margin-bottom: 1rem;
+                border: 1px solid #dee2e6;
+                border-radius: 5px;
+            }
+            .table td {
+                display: flex;
+                justify-content: space-between;
+                align-items: center;
+                border: none;
+                padding: 0.5rem 1rem;
+                position: relative;
+                padding-left: 50%;
+            }
+            .table td::before {
+                content: attr(data-label);
+                position: absolute;
+                left: 1rem;
+                width: 45%;
+                padding-right: 1rem;
+                font-weight: bold;
+                text-align: left;
+            }
+            .order-card {
+                margin-bottom: 1.5rem;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="container orders-container">
+        <div class="page-header">
+            <h1 class="display-5 fw-bold">My Orders</h1>
+        </div>
+
+        <div th:if="${orders.empty}" class="empty-orders">
+            <div class="empty-orders-icon">
+                <svg xmlns="http://www.w3.org/2000/svg" width="1em" height="1em" fill="currentColor" viewBox="0 0 16 16" class="bi bi-box-seam">
+                    <path d="M8.186 1.113a.5.5 0 0 0-.372 0L1.846 3.5l2.404.961L10.404 2l-2.218-.887zm3.564 1.426L5.596 5 8 5.961 14.154 3.5l-2.404-.961zm3.25 1.7-6.5 2.6v7.922l6.5-2.6V4.24zM7.5 14.762V6.838L1 4.239v7.923l6.5 2.6zM7.443.184a1.5 1.5 0 0 1 1.114 0l7.129 2.852A.5.5 0 0 1 16 3.5v8.662a1 1 0 0 1-.629.928l-7.185 2.874a.5.5 0 0 1-.372 0L.63 13.09a1 1 0 0 1-.63-.928V3.5a.5.5 0 0 1 .314-.464L7.443.184z"/>
+                </svg>
+            </div>
+            <h3 class="mb-3">No Orders Yet</h3>
+            <p class="text-muted">You haven't placed any orders with us yet.</p>
+            <a href="/" class="btn btn-primary mt-3">Start Shopping</a>
+        </div>
+
+        <!-- Iterate over each order -->
+        <div th:each="order : ${orders}">
+            <div class="order-card">
+                <div class="order-header d-flex justify-content-between align-items-center flex-wrap">
+                    <div>
+                        <h4 class="mb-0">
+                            Order #<span th:text="${order.id}"></span>
+                        </h4>
+                        <small class="text-muted">
+                            <span th:text="${order.orderDate.format(formatter)}"></span>
+                        </small>
+                    </div>
+                    <div class="mt-2 mt-md-0">
+                        <span th:classappend="${order.status == 'COMPLETED'} ? 'status-completed' : 
+                                           (${order.status == 'CANCELLED'} ? 'status-cancelled' : 'status-pending')" 
+                              class="order-status">
+                            <span th:text="${order.status}"></span>
+                        </span>
+                    </div>
+                </div>
+                <div class="order-body">
+                    <div class="d-flex justify-content-between align-items-center mb-3">
+                        <h5 class="mb-0">Order Summary</h5>
+                        <h5 class="mb-0">Total: ₹<span th:text="${order.total}"></span></h5>
+                    </div>
+                    
+                    <div class="table-responsive">
+                        <table class="table">
+                            <thead class="table-light">
+                                <tr>
+                                    <th>Product</th>
+                                    <th>Quantity</th>
+                                    <th>Price</th>
+                                    <th>Subtotal</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                <!-- Loop over order items inside the current order -->
+                                <tr th:each="item : ${order.orderItems}">
+                                    <td data-label="Product">
+                                        <div class="d-flex align-items-center">
+                                            <img th:src="${item.product.imageUrl}" 
+                                                 class="product-img me-3" 
+                                                 alt="Product image"
+                                                 th:if="${item.product.imageUrl}">
+                                            <span th:text="${item.product.name}">Product Name</span>
+                                        </div>
+                                    </td>
+                                    <td data-label="Quantity" th:text="${item.quantity}">1</td>
+                                    <td data-label="Price" th:text="'₹' + ${item.price}">₹0.00</td>
+                                    <td data-label="Subtotal" th:text="'₹' + (${item.quantity} * ${item.price})">₹0.00</td>
+                                </tr>
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Bootstrap JS Bundle with Popper -->
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+</body>
+</html>
